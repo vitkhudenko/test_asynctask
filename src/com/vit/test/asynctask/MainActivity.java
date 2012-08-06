@@ -7,9 +7,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /*
  * Disclaimer: this code is created as a quick prototype.
@@ -51,6 +53,10 @@ public class MainActivity extends Activity {
         final boolean useParallelExecution = enableParallelExecutionCheckbox.isChecked();
         
         log("use parallel execution = " + useParallelExecution);
+        
+        Toast toast = Toast.makeText(this, "Please watch the LogCat output", Toast.LENGTH_SHORT);
+        toast.setGravity((Gravity.CENTER_HORIZONTAL | Gravity.TOP), toast.getXOffset(), toast.getYOffset());
+        toast.show();
         
         for (int i = 0; i < numberOfTasks; i++) {
             int taskId = i + 1;
