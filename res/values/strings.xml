@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Test AsyncTask</string>
+    <string name="title_activity_main">Test AsyncTask</string>
+</resources>
