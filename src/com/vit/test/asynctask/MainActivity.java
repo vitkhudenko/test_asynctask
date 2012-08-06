@@ -11,6 +11,11 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+/*
+ * Disclaimer: this code is created as a quick prototype.
+ * Please don't use it in production, because it neither handles 
+ * device configuration changes nor the Activity lifecycle changes.
+ */
 public class MainActivity extends Activity {
 
     // the number of tasks to be run in a batch
@@ -37,8 +42,8 @@ public class MainActivity extends Activity {
     public void onStartTestClicked(View v) {
         executedTasksCount = new AtomicInteger(0); // reset this count
         
-        final long numberOfTasks = getIntFromTextView(numberOfTasksEditText);
-        final long taskDuration  = getIntFromTextView(singleTaskDurationEditText);
+        final int numberOfTasks = getIntFromTextView(numberOfTasksEditText);
+        final int taskDuration  = getIntFromTextView(singleTaskDurationEditText);
         
         log("number of tasks to run = " + numberOfTasks);
         log("task payload duration = " + taskDuration + " ms");
@@ -48,42 +53,44 @@ public class MainActivity extends Activity {
         log("use parallel execution = " + useParallelExecution);
         
         for (int i = 0; i < numberOfTasks; i++) {
-            
             int taskId = i + 1;
+            startTask(taskId, taskDuration, useParallelExecution);
+        }
+    }
+    
+    private void startTask(int taskId, int taskDuration, boolean useParallelExecution) {
+        TestTask task = new TestTask(taskId, taskDuration);
+        
+        if (useParallelExecution) {
+            // this type of executor uses the following params:
+            //
+            // private static final int CORE_POOL_SIZE = 5;
+            // private static final int MAXIMUM_POOL_SIZE = 128;
+            // private static final int KEEP_ALIVE = 1;
+            //
+            // private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+            //     private final AtomicInteger mCount = new AtomicInteger(1);
+            //
+            //     public Thread newThread(Runnable r) {
+            //         return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
+            //     }
+            // };
+            //
+            // private static final BlockingQueue<Runnable> sPoolWorkQueue =
+            //        new LinkedBlockingQueue<Runnable>(10);
             
-            TestTask task = new TestTask(taskId, taskDuration);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             
-            if (useParallelExecution) {
-                // this type of executor uses the following params:
-                //
-                // private static final int CORE_POOL_SIZE = 5;
-                // private static final int MAXIMUM_POOL_SIZE = 128;
-                // private static final int KEEP_ALIVE = 1;
-                //
-                // private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-                //     private final AtomicInteger mCount = new AtomicInteger(1);
-                //
-                //     public Thread newThread(Runnable r) {
-                //         return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
-                //     }
-                // };
-                //
-                // private static final BlockingQueue<Runnable> sPoolWorkQueue =
-                //        new LinkedBlockingQueue<Runnable>(10);
-                
-                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                
-            } else {
-                // this is the same as calling t.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-                task.execute();
-            }
+        } else {
+            // this is the same as calling t.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            task.execute();
         }
     }
 
-    private long getIntFromTextView(EditText v) {
-        long result = 0;
+    private int getIntFromTextView(EditText v) {
+        int result = 0;
         try {
-            result = Long.parseLong(v.getText().toString());
+            result = Integer.parseInt(v.getText().toString());
         } catch (NumberFormatException ignored) {}
         return result;
     }
@@ -94,10 +101,10 @@ public class MainActivity extends Activity {
     
     private class TestTask extends AsyncTask<Void, Void, Void> /* Params, Progress, Result */ {
 
-        private final long id;
-        private final long duration;
+        private final int id;
+        private final int duration;
         
-        TestTask(long id, long duration) {
+        TestTask(int id, int duration) {
             this.id       = id;
             this.duration = duration;
         }
