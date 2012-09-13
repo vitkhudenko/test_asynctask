@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
     private CheckBox enableParallelExecutionCheckbox;
     
     // each task increments this count as soon as it enters its doInBackground()
+    // so this allows to track the order of tasks execution
     private AtomicInteger executedTasksCount;
     
     @Override
@@ -88,7 +89,7 @@ public class MainActivity extends Activity {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             
         } else {
-            // this is the same as calling t.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            // this is the same as calling task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
             task.execute();
         }
     }
